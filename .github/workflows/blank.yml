@@ -1,0 +1,26 @@
+name: Deploy Actual Budget
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docker-compose.yml"
+      - ".github/workflows/**"
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DO_DROPLET_IP }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/actual
+            git pull origin main
+            docker compose up -d
